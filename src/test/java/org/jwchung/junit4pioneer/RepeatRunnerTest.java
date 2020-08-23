@@ -77,14 +77,56 @@ public class RepeatRunnerTest {
         assertEquals(7, getRepeat(executedTestNames, getTargetTestName(7)));
     }
 
+    private String getTargetTestName(int repeat) {
+        return String.format("testMyCode%sTimes", repeat);
+    }
+
+    @RunWith(RepeatRunner.class)
+    public static class RepeatTestMethodWithNormalCase {
+        private static final List<String> executedTestNames = new ArrayList<>();
+
+        public static List<String> getExecutedTestNames() {
+            return executedTestNames;
+        }
+
+        public static void clearExecutedTestNames() {
+            getExecutedTestNames().clear();
+        }
+
+        private static String getCurrentMethod() {
+            return Thread
+                    .currentThread()
+                    .getStackTrace()[1 + 1]
+                    .getMethodName();
+        }
+
+        @Test
+        @Repeat(3)
+        public void testMyCode3Times() {
+            getExecutedTestNames().add(getCurrentMethod());
+        }
+
+        @Test
+        public void normalTestMethod() {
+            getExecutedTestNames().add(getCurrentMethod());
+        }
+    }
+
+    @Test
+    public void sutCorrectlyRunsNormalTestMethod() {
+        RepeatTestMethodWithNormalCase.clearExecutedTestNames();
+
+        JUnitCore.runClasses(RepeatTestMethodWithNormalCase.class);
+
+        List<String> executedTestNames = RepeatTestMethodWithNormalCase.getExecutedTestNames();
+        assertEquals(4, executedTestNames.size());
+        assertEquals(1, getRepeat(executedTestNames, "normalTestMethod"));
+    }
+
     private long getRepeat(List<String> executedTestNames, String targetTestName) {
         return executedTestNames
                 .stream()
                 .filter(x -> x.equals(targetTestName))
                 .count();
-    }
-
-    private String getTargetTestName(int repeat) {
-        return String.format("testMyCode%sTimes", repeat);
     }
 }
