@@ -1,11 +1,11 @@
 package org.jwchung.junit4pioneer;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
 
 public class RepeatRunnerTest {
 
