@@ -15,7 +15,7 @@ public @interface Repeat {
 
 
     /**
-     * @return Gets repeat times.
+     * Gets repeat times.
      */
     int value();
 }
