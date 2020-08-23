@@ -24,7 +24,10 @@ public class RepeatRunner extends BlockJUnit4ClassRunner {
 
         for (FrameworkMethod method: super.computeTestMethods()) {
             Repeat repeat = method.getAnnotation(Repeat.class);
-            for (int i = 0; i < repeat.value(); i++) {
+
+            int repeatValue = repeat == null ? 1 : repeat.value();
+
+            for (int i = 0; i < repeatValue; i++) {
                 repeatMethods.add(method);
             }
         }
