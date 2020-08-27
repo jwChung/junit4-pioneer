@@ -12,10 +12,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface Repeat {
-
-
     /**
-     * Gets repeat times.
+     * @return repeat times
      */
     int value();
 }
