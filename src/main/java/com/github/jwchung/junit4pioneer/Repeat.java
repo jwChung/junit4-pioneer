@@ -1,4 +1,4 @@
-package org.jwchung.junit4pioneer;
+package com.github.jwchung.junit4pioneer;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

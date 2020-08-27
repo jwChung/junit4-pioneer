@@ -1,4 +1,4 @@
-package org.jwchung.junit4pioneer;
+package com.github.jwchung.junit4pioneer;
 
 import java.util.ArrayList;
 import java.util.Collections;
