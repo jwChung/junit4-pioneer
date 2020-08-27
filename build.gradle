@@ -1,5 +1,7 @@
 plugins {
     id 'java'
+    id 'maven-publish'
+    id 'signing'
     id 'checkstyle'
 }
 
@@ -16,4 +18,74 @@ checkstyle {
 
 dependencies {
     implementation group: 'junit', name: 'junit', version: '4.12'
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = 'junit4-pioneer'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'junit4-pioneer'
+                description = 'JUnit4 Extensions Pack'
+                url = 'https://github.com/jwChung/junit4-pioneer'
+                properties = [
+                        myProp: "value",
+                        "prop.with.dots": "anotherValue"
+                ]
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://raw.githubusercontent.com/jwChung/junit4-pioneer/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'jwchung'
+                        name = 'Jin-Wook Chung'
+                        email = 'jwchung@hotmail.com'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/jwChung/junit4-pioneer.git'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            if (project.hasProperty("sonatypeUsername")
+                    && project.hasProperty("sonatypePassword") ) {
+                credentials {
+                    username = sonatypeUsername
+                    password = sonatypePassword
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.maven
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
 }

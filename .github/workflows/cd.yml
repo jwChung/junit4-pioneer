@@ -1,0 +1,30 @@
+name: Publish package to the Maven Central Repository
+on:
+  release:
+    types: [ created ]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Java
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - name: Build and Publish
+      run: |
+        echo "Creating .gpg key"
+        echo $GPG_KEY_ARMOR | base64 --decode > $GITHUB_WORKSPACE/release.gpg
+        echo "Build and publish"
+        echo sonatypeUsername=$SONATYPE_USERNAME >> gradle.properties
+        echo sonatypePassword=$SONATYPE_PASSWORD >> gradle.properties
+        echo signing.keyId=$GPG_KEY_ID >> gradle.properties
+        echo signing.password=$GPG_PASSWORD >> gradle.properties
+        echo signing.secretKeyRingFile=$GITHUB_WORKSPACE/release.gpg >> gradle.properties
+        ./gradlew build publish --warn --stacktrace
+      env:
+        GPG_KEY_ARMOR: ${{ secrets.SYNCED_GPG_KEY_ARMOR }}
+        GPG_KEY_ID: ${{ secrets.SYNCED_GPG_KEY_ID }}
+        GPG_PASSWORD: ${{ secrets.SYNCED_GPG_KEY_PASSWORD }}
+        SONATYPE_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+        SONATYPE_USERNAME: ${{ secrets.OSSRH_USERNAME }}
