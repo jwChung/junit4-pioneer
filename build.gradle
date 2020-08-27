@@ -3,8 +3,8 @@ plugins {
     id 'checkstyle'
 }
 
-group 'org.jwchung'
-version '0.1.0'
+group 'com.github.jwchung'
+version '0.0.1'
 
 repositories {
     mavenCentral()
