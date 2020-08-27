@@ -83,14 +83,14 @@ public class RepeatRunnerTest {
 
     @RunWith(RepeatRunner.class)
     public static class RepeatTestMethodWithNormalCase {
-        private static final List<String> executedTestNames = new ArrayList<>();
+        private static final List<String> executedTestRecorder = new ArrayList<>();
 
-        public static List<String> getExecutedTestNames() {
-            return executedTestNames;
+        public static List<String> getExecutedTestRecorder() {
+            return executedTestRecorder;
         }
 
         public static void clearExecutedTestNames() {
-            getExecutedTestNames().clear();
+            getExecutedTestRecorder().clear();
         }
 
         private static String getCurrentMethod() {
@@ -103,12 +103,12 @@ public class RepeatRunnerTest {
         @Test
         @Repeat(3)
         public void testMyCode3Times() {
-            getExecutedTestNames().add(getCurrentMethod());
+            getExecutedTestRecorder().add(getCurrentMethod());
         }
 
         @Test
         public void normalTestMethod() {
-            getExecutedTestNames().add(getCurrentMethod());
+            getExecutedTestRecorder().add(getCurrentMethod());
         }
     }
 
@@ -118,7 +118,7 @@ public class RepeatRunnerTest {
 
         JUnitCore.runClasses(RepeatTestMethodWithNormalCase.class);
 
-        List<String> executedTestNames = RepeatTestMethodWithNormalCase.getExecutedTestNames();
+        List<String> executedTestNames = RepeatTestMethodWithNormalCase.getExecutedTestRecorder();
         assertEquals(4, executedTestNames.size());
         assertEquals(1, getRepeat(executedTestNames, "normalTestMethod"));
     }
