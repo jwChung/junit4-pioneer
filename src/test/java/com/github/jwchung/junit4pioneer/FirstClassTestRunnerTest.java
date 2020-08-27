@@ -48,7 +48,11 @@ public class FirstClassTestRunnerTest {
 
     @RunWith(FirstClassTestRunner.class)
     public static class NormalTestCases {
-        private static Boolean recordIsExecuted = false;
+        private static Boolean isExecutedRecorder = false;
+
+        public static Boolean getIsExecutedRecorder() {
+            return isExecutedRecorder;
+        }
 
         @Test
         public Iterable<FirstClassTestCase> createTestCases() {
@@ -62,19 +66,19 @@ public class FirstClassTestRunnerTest {
 
         @Test
         public void voidTestCase() {
-            recordIsExecuted = true;
+            isExecutedRecorder = true;
         }
     }
 
     @Test
     public void sutCorrectlyRunsVoidTestCases() {
-        NormalTestCases.recordIsExecuted = false;
+        NormalTestCases.isExecutedRecorder = false;
 
         Result result = JUnitCore.runClasses(NormalTestCases.class);
 
         assertEquals(3, result.getRunCount());
         assertEquals(0, result.getFailureCount());
-        assertTrue(NormalTestCases.recordIsExecuted);
+        assertTrue(NormalTestCases.getIsExecutedRecorder());
     }
 
     @RunWith(FirstClassTestRunner.class)
