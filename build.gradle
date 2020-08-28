@@ -6,7 +6,10 @@ plugins {
 }
 
 group 'com.github.jwchung'
-version '0.0.1'
+if (project.hasProperty("semver")) {
+    version semver
+}
+
 
 repositories {
     mavenCentral()
@@ -42,10 +45,6 @@ publishing {
                 name = 'junit4-pioneer'
                 description = 'JUnit4 Extensions Pack'
                 url = 'https://github.com/jwChung/junit4-pioneer'
-                properties = [
-                        myProp: "value",
-                        "prop.with.dots": "anotherValue"
-                ]
                 licenses {
                     license {
                         name = 'MIT License'

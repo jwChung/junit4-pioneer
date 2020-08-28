@@ -1,7 +1,7 @@
 name: Publish package to the Maven Central Repository
 on:
   release:
-    types: [ created ]
+    types: [created]
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -16,6 +16,7 @@ jobs:
         echo "Creating .gpg key"
         echo $GPG_KEY_ARMOR | base64 --decode > $GITHUB_WORKSPACE/release.gpg
         echo "Build and publish"
+        echo semver=${GITHUB_REF#refs/tags/v} >> gradle.properties
         echo sonatypeUsername=$SONATYPE_USERNAME >> gradle.properties
         echo sonatypePassword=$SONATYPE_PASSWORD >> gradle.properties
         echo signing.keyId=$GPG_KEY_ID >> gradle.properties
