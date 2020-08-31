@@ -18,7 +18,7 @@ import org.junit.runners.model.InitializationError;
 public class RepeatRunner extends Runner implements Filterable {
     private final ParentRunner<?> proxyRunner;
 
-    public RepeatRunner(Class<?> klass) {
+    public RepeatRunner(Class<?> klass) throws InitializationError {
         proxyRunner = createProxyRunner(klass);
     }
 
@@ -37,18 +37,7 @@ public class RepeatRunner extends Runner implements Filterable {
         proxyRunner.filter(filter);
     }
 
-    private static ParentRunner<?> createProxyRunner(Class<?> klass) {
-        try {
-            return createProxyRunnerUnsafely(klass);
-        } catch (InitializationError initializationError) {
-            String message = "Error occurred when initializing an instance of "
-                    + "the BlockJUnit4ClassRunner type.";
-
-            throw new RuntimeException(message, initializationError);
-        }
-    }
-
-    private static ParentRunner<?> createProxyRunnerUnsafely(final Class<?> klass)
+    private static ParentRunner<?> createProxyRunner(final Class<?> klass)
             throws InitializationError {
         return new BlockJUnit4ClassRunner(klass) {
             @Override
