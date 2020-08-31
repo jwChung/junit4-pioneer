@@ -28,15 +28,7 @@ public class RepeatRunnerTest {
 
     @RunWith(RepeatRunner.class)
     public static class SeveralRepeatTestMethodsCase {
-        private static final List<String> executedTestNames = new ArrayList<>();
-
-        public static List<String> getExecutedTestNames() {
-            return executedTestNames;
-        }
-
-        public static void clearExecutedTestNames() {
-            getExecutedTestNames().clear();
-        }
+        private static final List<String> executedTestNameRecorder = new ArrayList<>();
 
         private static String getCurrentMethod() {
             return Thread
@@ -48,33 +40,34 @@ public class RepeatRunnerTest {
         @Test
         @Repeat(3)
         public void testMyCode3Times() {
-            getExecutedTestNames().add(getCurrentMethod());
+            executedTestNameRecorder.add(getCurrentMethod());
         }
 
         @Test
         @Repeat(5)
         public void testMyCode5Times() {
-            getExecutedTestNames().add(getCurrentMethod());
+            executedTestNameRecorder.add(getCurrentMethod());
         }
 
         @Test
         @Repeat(7)
         public void testMyCode7Times() {
-            getExecutedTestNames().add(getCurrentMethod());
+            executedTestNameRecorder.add(getCurrentMethod());
         }
     }
 
     @Test
     public void sutCorrectlyRepeatsSeveralRepeatTestMethods() {
-        SeveralRepeatTestMethodsCase.clearExecutedTestNames();
+        SeveralRepeatTestMethodsCase.executedTestNameRecorder.clear();
 
         JUnitCore.runClasses(SeveralRepeatTestMethodsCase.class);
 
-        List<String> executedTestNames = SeveralRepeatTestMethodsCase.getExecutedTestNames();
-        assertEquals(15, executedTestNames.size());
-        assertEquals(3, getRepeat(executedTestNames, getTargetTestName(3)));
-        assertEquals(5, getRepeat(executedTestNames, getTargetTestName(5)));
-        assertEquals(7, getRepeat(executedTestNames, getTargetTestName(7)));
+        List<String> executedTestNameRecorder =
+                SeveralRepeatTestMethodsCase.executedTestNameRecorder;
+        assertEquals(15, executedTestNameRecorder.size());
+        assertEquals(3, getRepeat(executedTestNameRecorder, getTargetTestName(3)));
+        assertEquals(5, getRepeat(executedTestNameRecorder, getTargetTestName(5)));
+        assertEquals(7, getRepeat(executedTestNameRecorder, getTargetTestName(7)));
     }
 
     private String getTargetTestName(int repeat) {
@@ -83,15 +76,7 @@ public class RepeatRunnerTest {
 
     @RunWith(RepeatRunner.class)
     public static class RepeatTestMethodWithNormalCase {
-        private static final List<String> executedTestRecorder = new ArrayList<>();
-
-        public static List<String> getExecutedTestRecorder() {
-            return executedTestRecorder;
-        }
-
-        public static void clearExecutedTestNames() {
-            getExecutedTestRecorder().clear();
-        }
+        private static final List<String> executedTestNameRecorder = new ArrayList<>();
 
         private static String getCurrentMethod() {
             return Thread
@@ -103,24 +88,25 @@ public class RepeatRunnerTest {
         @Test
         @Repeat(3)
         public void testMyCode3Times() {
-            getExecutedTestRecorder().add(getCurrentMethod());
+            executedTestNameRecorder.add(getCurrentMethod());
         }
 
         @Test
         public void normalTestMethod() {
-            getExecutedTestRecorder().add(getCurrentMethod());
+            executedTestNameRecorder.add(getCurrentMethod());
         }
     }
 
     @Test
     public void sutCorrectlyRunsNormalTestMethod() {
-        RepeatTestMethodWithNormalCase.clearExecutedTestNames();
+        RepeatTestMethodWithNormalCase.executedTestNameRecorder.clear();
 
         JUnitCore.runClasses(RepeatTestMethodWithNormalCase.class);
 
-        List<String> executedTestNames = RepeatTestMethodWithNormalCase.getExecutedTestRecorder();
-        assertEquals(4, executedTestNames.size());
-        assertEquals(1, getRepeat(executedTestNames, "normalTestMethod"));
+        List<String> executedTestNameRecorder =
+                RepeatTestMethodWithNormalCase.executedTestNameRecorder;
+        assertEquals(4, executedTestNameRecorder.size());
+        assertEquals(1, getRepeat(executedTestNameRecorder, "normalTestMethod"));
     }
 
     private long getRepeat(List<String> executedTestNames, String targetTestName) {
