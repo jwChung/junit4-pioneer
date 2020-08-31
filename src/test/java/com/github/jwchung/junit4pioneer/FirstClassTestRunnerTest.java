@@ -50,10 +50,6 @@ public class FirstClassTestRunnerTest {
     public static class NormalTestCases {
         private static Boolean isExecutedRecorder = false;
 
-        public static Boolean getIsExecutedRecorder() {
-            return isExecutedRecorder;
-        }
-
         @Test
         public Iterable<FirstClassTestCase> createTestCases() {
             int[] testData = {
@@ -78,7 +74,7 @@ public class FirstClassTestRunnerTest {
 
         assertEquals(3, result.getRunCount());
         assertEquals(0, result.getFailureCount());
-        assertTrue(NormalTestCases.getIsExecutedRecorder());
+        assertTrue(NormalTestCases.isExecutedRecorder);
     }
 
     @RunWith(FirstClassTestRunner.class)
