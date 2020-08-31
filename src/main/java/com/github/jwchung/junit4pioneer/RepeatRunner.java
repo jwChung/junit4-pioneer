@@ -16,28 +16,28 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 
 public class RepeatRunner extends Runner implements Filterable {
-    private final ParentRunner<?> proxyRunner;
+    private final ParentRunner<?> realRunner;
 
     public RepeatRunner(Class<?> klass) throws InitializationError {
-        proxyRunner = createProxyRunner(klass);
+        realRunner = createRealRunner(klass);
     }
 
     @Override
     public Description getDescription() {
-        return proxyRunner.getDescription();
+        return realRunner.getDescription();
     }
 
     @Override
     public void run(RunNotifier notifier) {
-        proxyRunner.run(notifier);
+        realRunner.run(notifier);
     }
 
     @Override
     public void filter(Filter filter) throws NoTestsRemainException {
-        proxyRunner.filter(filter);
+        realRunner.filter(filter);
     }
 
-    private static ParentRunner<?> createProxyRunner(final Class<?> klass)
+    private static ParentRunner<?> createRealRunner(final Class<?> klass)
             throws InitializationError {
         return new BlockJUnit4ClassRunner(klass) {
             @Override
