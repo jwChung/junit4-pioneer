@@ -6,31 +6,40 @@ import java.util.List;
 
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
+import org.junit.runner.manipulation.Filter;
+import org.junit.runner.manipulation.Filterable;
+import org.junit.runner.manipulation.NoTestsRemainException;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
+import org.junit.runners.ParentRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 
-public class RepeatRunner extends Runner {
-    private final Class<?> klass;
+public class RepeatRunner extends Runner implements Filterable {
+    private final ParentRunner<?> proxyRunner;
 
     public RepeatRunner(Class<?> klass) {
-        this.klass = klass;
+        proxyRunner = createProxyRunner(klass);
     }
 
     @Override
     public Description getDescription() {
-        return createProxyRunner().getDescription();
+        return proxyRunner.getDescription();
     }
 
     @Override
     public void run(RunNotifier notifier) {
-        createProxyRunner().run(notifier);
+        proxyRunner.run(notifier);
     }
 
-    private Runner createProxyRunner() {
+    @Override
+    public void filter(Filter filter) throws NoTestsRemainException {
+        proxyRunner.filter(filter);
+    }
+
+    private static ParentRunner<?> createProxyRunner(Class<?> klass) {
         try {
-            return createProxyRunnerUnsafely();
+            return createProxyRunnerUnsafely(klass);
         } catch (InitializationError initializationError) {
             String message = "Error occurred when initializing an instance of "
                     + "the BlockJUnit4ClassRunner type.";
@@ -39,7 +48,8 @@ public class RepeatRunner extends Runner {
         }
     }
 
-    private BlockJUnit4ClassRunner createProxyRunnerUnsafely() throws InitializationError {
+    private static ParentRunner<?> createProxyRunnerUnsafely(final Class<?> klass)
+            throws InitializationError {
         return new BlockJUnit4ClassRunner(klass) {
             @Override
             protected List<FrameworkMethod> computeTestMethods() {
