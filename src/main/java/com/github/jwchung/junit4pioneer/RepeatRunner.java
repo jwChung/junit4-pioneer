@@ -20,10 +20,10 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 
 public class RepeatRunner extends Runner implements Filterable {
-    private final RepeatInnerRunner innerRunner;
+    private final InnerRepeatRunner innerRunner;
 
     public RepeatRunner(Class<?> klass) throws InitializationError {
-        innerRunner = new RepeatInnerRunner(klass);
+        innerRunner = new InnerRepeatRunner(klass);
     }
 
     @Override
@@ -41,11 +41,11 @@ public class RepeatRunner extends Runner implements Filterable {
         innerRunner.filter(filter);
     }
 
-    private static class RepeatInnerRunner extends BlockJUnit4ClassRunner {
+    private static class InnerRepeatRunner extends BlockJUnit4ClassRunner {
         private final ConcurrentHashMap<RepeatMethod, Description> methodDescriptions
                 = new ConcurrentHashMap<>();
 
-        public RepeatInnerRunner(Class<?> klass) throws InitializationError {
+        public InnerRepeatRunner(Class<?> klass) throws InitializationError {
             super(klass);
         }
 
