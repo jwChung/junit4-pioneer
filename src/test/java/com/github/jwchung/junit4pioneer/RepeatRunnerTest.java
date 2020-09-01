@@ -1,8 +1,14 @@
 package com.github.jwchung.junit4pioneer;
 
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -52,6 +58,19 @@ public class RepeatRunnerTest {
         }
     }
 
+    @RunWith(RepeatRunner.class)
+    public static class ManyTimesRepeatTestCase {
+        @Test
+        @Repeat(100)
+        public void testMyCode100Times() {
+        }
+
+        @Test
+        @Repeat(110)
+        public void testMyCode110Times() {
+        }
+    }
+
     @Test
     public void sutSupportsSeveralRepeatTestMethods() {
         // Fixture setup
@@ -91,13 +110,14 @@ public class RepeatRunnerTest {
                 executedTestNames.add(description.getMethodName());
             }
         });
+        String targetTestName = "normalTestMethod";
 
         // Exercise system
-        junitCore.run(RepeatTestMethodWithNormalCase.class);
+        junitCore.run(Request.method(RepeatTestMethodWithNormalCase.class, targetTestName));
 
         // Verify outcome
-        assertEquals(4, executedTestNames.size());
-        assertEquals(1, getNumberOfTimes(executedTestNames, "normalTestMethod"));
+        assertEquals(1, executedTestNames.size());
+        assertEquals(targetTestName, executedTestNames.get(0));
     }
 
     @Test
@@ -121,6 +141,79 @@ public class RepeatRunnerTest {
         assertNumberOfTimesToRun(executedTestNames, 3);
     }
 
+    @Test
+    public void sutCorrectlyRepresentsRepeatNumberInTestName() {
+        // Fixture setup
+        List<String> executedTestNames = new ArrayList<>();
+        JUnitCore junitCore = new JUnitCore();
+        junitCore.addListener(new RunListener() {
+            @Override
+            public void testFinished(Description description) {
+                executedTestNames.add(description.getMethodName());
+            }
+        });
+        String targetTestName = getTargetTestName(3);
+        List<String> expected = Arrays.asList(
+                "testMyCode3Times[0]",
+                "testMyCode3Times[1]",
+                "testMyCode3Times[2]");
+
+        // Exercise system
+        junitCore.run(Request.method(SeveralRepeatTestMethodsCase.class, targetTestName));
+
+        // Verify outcome
+        assertThat(executedTestNames, is(expected));
+    }
+
+    @Test
+    public void sutCorrectlyRepresentsRepeatNumbersAlignedRight_Example1() {
+        // Fixture setup
+        List<String> executedTestNames = new ArrayList<>();
+        JUnitCore junitCore = new JUnitCore();
+        junitCore.addListener(new RunListener() {
+            @Override
+            public void testFinished(Description description) {
+                executedTestNames.add(description.getMethodName());
+            }
+        });
+        String targetTestName = "testMyCode100Times";
+        String[] expected = {
+                "testMyCode100Times[01]",
+                "testMyCode100Times[99]"
+        };
+
+        // Exercise system
+        junitCore.run(Request.method(ManyTimesRepeatTestCase.class, targetTestName));
+
+        // Verify outcome
+        assertThat(executedTestNames, hasItems(expected));
+        assertThat(executedTestNames, not(hasItem("testMyCode100Times[100]")));
+    }
+
+    @Test
+    public void sutCorrectlyRepresentsRepeatNumbersAlignedRight_Example2() {
+        // Fixture setup
+        List<String> executedTestNames = new ArrayList<>();
+        JUnitCore junitCore = new JUnitCore();
+        junitCore.addListener(new RunListener() {
+            @Override
+            public void testFinished(Description description) {
+                executedTestNames.add(description.getMethodName());
+            }
+        });
+        String targetTestName = "testMyCode110Times";
+        String[] expected = {
+                "testMyCode110Times[000]",
+                "testMyCode110Times[109]"
+        };
+
+        // Exercise system
+        junitCore.run(Request.method(ManyTimesRepeatTestCase.class, targetTestName));
+
+        // Verify outcome
+        assertThat(executedTestNames, hasItems(expected));
+    }
+
     private void assertNumberOfTimesToRun(
             List<String> executedTestNames, int expectedNumberOfTimes) {
         long actual = getNumberOfTimes(
@@ -136,7 +229,7 @@ public class RepeatRunnerTest {
     private long getNumberOfTimes(List<String> executedTestNames, String targetTestName) {
         return executedTestNames
                 .stream()
-                .filter(x -> x.equals(targetTestName))
+                .filter(x -> x.startsWith(targetTestName))
                 .count();
     }
 }
