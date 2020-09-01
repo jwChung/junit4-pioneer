@@ -19,7 +19,7 @@ public class RepeatRunner extends Runner implements Filterable {
     private final ParentRunner<?> realRunner;
 
     public RepeatRunner(Class<?> klass) throws InitializationError {
-        realRunner = createRealRunner(klass);
+        realRunner = new RealRunner(klass);
     }
 
     @Override
@@ -37,29 +37,30 @@ public class RepeatRunner extends Runner implements Filterable {
         realRunner.filter(filter);
     }
 
-    private static ParentRunner<?> createRealRunner(final Class<?> klass)
-            throws InitializationError {
-        return new BlockJUnit4ClassRunner(klass) {
-            @Override
-            protected List<FrameworkMethod> computeTestMethods() {
-                return computeRepeatMethods();
-            }
+    private static class RealRunner extends BlockJUnit4ClassRunner {
+        public RealRunner(Class<?> klass) throws InitializationError {
+            super(klass);
+        }
 
-            private List<FrameworkMethod> computeRepeatMethods() {
-                List<FrameworkMethod> repeatMethods = new ArrayList<>();
+        @Override
+        protected List<FrameworkMethod> computeTestMethods() {
+            return computeRepeatMethods();
+        }
 
-                for (FrameworkMethod method : super.computeTestMethods()) {
-                    Repeat repeat = method.getAnnotation(Repeat.class);
+        private List<FrameworkMethod> computeRepeatMethods() {
+            List<FrameworkMethod> repeatMethods = new ArrayList<>();
 
-                    int repeatValue = repeat == null ? 1 : repeat.value();
+            for (FrameworkMethod method : super.computeTestMethods()) {
+                Repeat repeat = method.getAnnotation(Repeat.class);
 
-                    for (int i = 0; i < repeatValue; i++) {
-                        repeatMethods.add(method);
-                    }
+                int repeatValue = repeat == null ? 1 : repeat.value();
+
+                for (int i = 0; i < repeatValue; i++) {
+                    repeatMethods.add(method);
                 }
-
-                return Collections.unmodifiableList(repeatMethods);
             }
-        };
+
+            return Collections.unmodifiableList(repeatMethods);
+        }
     }
 }
