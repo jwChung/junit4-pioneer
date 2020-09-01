@@ -90,10 +90,10 @@ public class RepeatRunner extends Runner implements Filterable {
                     repeatMethods.add(new RepeatMethod(method));
                 } else {
                     int repeatValue = repeat.value();
-                    NumberFormat maxRepeatNumberFormat = getMaxRepeatNumberFormat(repeatValue);
+                    NumberFormat repeatNumberFormat = getRepeatNumberFormat(repeatValue);
 
                     for (int i = 0; i < repeatValue; i++) {
-                        repeatMethods.add(new RepeatMethod(method, i, maxRepeatNumberFormat));
+                        repeatMethods.add(new RepeatMethod(method, repeatNumberFormat.format(i)));
                     }
                 }
             }
@@ -105,7 +105,7 @@ public class RepeatRunner extends Runner implements Filterable {
             return method.getAnnotation(Test.class) != null;
         }
 
-        private NumberFormat getMaxRepeatNumberFormat(int maxRepeatNumber) {
+        private NumberFormat getRepeatNumberFormat(int maxRepeatNumber) {
             int maxRepeatNumberDigits =
                     Integer.valueOf(maxRepeatNumber - 1).toString().length();
 
@@ -154,17 +154,18 @@ public class RepeatRunner extends Runner implements Filterable {
     }
 
     private static class RepeatMethod extends FrameworkMethod {
-        private final int repeatNumber;
-        private final NumberFormat maxRepeatNumberFormat;
+        private static final String EMPTY_REPEAT_NUMBER = "";
+        private final Method method;
+        private final String repeatNumber;
 
         public RepeatMethod(Method method) {
-            this(method, 0, null);
+            this(method, EMPTY_REPEAT_NUMBER);
         }
 
-        public RepeatMethod(Method method, int repeatNumber, NumberFormat maxRepeatNumberFormat) {
+        public RepeatMethod(Method method, String repeatNumber) {
             super(method);
+            this.method = method;
             this.repeatNumber = repeatNumber;
-            this.maxRepeatNumberFormat = maxRepeatNumberFormat;
         }
 
         @Override
@@ -183,27 +184,25 @@ public class RepeatRunner extends Runner implements Filterable {
 
             RepeatMethod that = (RepeatMethod) o;
 
-            return repeatNumber == that.repeatNumber
-                    && getMethod().equals(that.getMethod());
+            return method.equals(that.method)
+                    && repeatNumber.equals(that.repeatNumber);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(super.hashCode(), getMethod(), repeatNumber);
+            return Objects.hash(super.hashCode(), method, repeatNumber);
         }
 
         public Description createTestDescription() {
-            if (maxRepeatNumberFormat == null) {
+            if (repeatNumber.equals(EMPTY_REPEAT_NUMBER)) {
                 return Description.createTestDescription(
                         getDeclaringClass(),
                         getName());
             } else {
-                String repeatNumberAlignedRight = maxRepeatNumberFormat.format(repeatNumber);
-
                 String displayName = String.format(
                         "%s[%s]",
                         getName(),
-                        repeatNumberAlignedRight);
+                        repeatNumber);
 
                 return Description.createTestDescription(
                         getDeclaringClass(),
