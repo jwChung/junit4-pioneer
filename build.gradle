@@ -3,6 +3,7 @@ plugins {
     id 'maven-publish'
     id 'signing'
     id 'checkstyle'
+    id 'io.codearte.nexus-staging' version '0.22.0'
 }
 
 group 'com.github.jwchung'
@@ -88,3 +89,13 @@ javadoc {
         options.addBooleanOption('html5', true)
     }
 }
+
+nexusStaging {
+    if (project.hasProperty("sonatypeUsername")
+        && project.hasProperty("sonatypePassword") ) {
+        username = sonatypeUsername
+        password = sonatypePassword
+    }
+    stagingProfileId = "845535153553b"
+}
+

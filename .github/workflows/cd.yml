@@ -22,7 +22,7 @@ jobs:
         echo signing.keyId=$GPG_KEY_ID >> gradle.properties
         echo signing.password=$GPG_PASSWORD >> gradle.properties
         echo signing.secretKeyRingFile=$GITHUB_WORKSPACE/release.gpg >> gradle.properties
-        ./gradlew build publish --warn --stacktrace
+        ./gradlew build publish closeAndReleaseRepository --warn --stacktrace
       env:
         GPG_KEY_ARMOR: ${{ secrets.SYNCED_GPG_KEY_ARMOR }}
         GPG_KEY_ID: ${{ secrets.SYNCED_GPG_KEY_ID }}
