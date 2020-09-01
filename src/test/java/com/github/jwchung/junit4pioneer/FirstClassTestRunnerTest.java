@@ -39,13 +39,6 @@ public class FirstClassTestRunnerTest {
         }
     }
 
-    @Test
-    public void sutCorrectlyRunsIterableFirstClassTestCases() {
-        Result result = JUnitCore.runClasses(IterableTestCases.class);
-        assertEquals(5, result.getRunCount());
-        assertEquals(0, result.getFailureCount());
-    }
-
     @RunWith(FirstClassTestRunner.class)
     public static class NormalTestCases {
         private static Boolean isExecutedRecorder = false;
@@ -66,17 +59,6 @@ public class FirstClassTestRunnerTest {
         }
     }
 
-    @Test
-    public void sutCorrectlyRunsVoidTestCases() {
-        NormalTestCases.isExecutedRecorder = false;
-
-        Result result = JUnitCore.runClasses(NormalTestCases.class);
-
-        assertEquals(3, result.getRunCount());
-        assertEquals(0, result.getFailureCount());
-        assertTrue(NormalTestCases.isExecutedRecorder);
-    }
-
     @RunWith(FirstClassTestRunner.class)
     public static class StreamTestCases {
         @Test
@@ -88,6 +70,24 @@ public class FirstClassTestRunnerTest {
             return Arrays.stream(testData).mapToObj(x -> () ->
                     assertEquals(x, 1));
         }
+    }
+
+    @Test
+    public void sutCorrectlyRunsIterableFirstClassTestCases() {
+        Result result = JUnitCore.runClasses(IterableTestCases.class);
+        assertEquals(5, result.getRunCount());
+        assertEquals(0, result.getFailureCount());
+    }
+
+    @Test
+    public void sutCorrectlyRunsVoidTestCases() {
+        NormalTestCases.isExecutedRecorder = false;
+
+        Result result = JUnitCore.runClasses(NormalTestCases.class);
+
+        assertEquals(3, result.getRunCount());
+        assertEquals(0, result.getFailureCount());
+        assertTrue(NormalTestCases.isExecutedRecorder);
     }
 
     @Test

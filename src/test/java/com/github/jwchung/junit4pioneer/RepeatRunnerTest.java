@@ -14,19 +14,12 @@ import org.junit.runner.RunWith;
 import org.junit.runner.notification.RunListener;
 
 public class RepeatRunnerTest {
-
     @RunWith(RepeatRunner.class)
     public static class OneRepeatTestMethodCase {
         @Test
         @Repeat(10)
         public void testMyCode10Times() {
         }
-    }
-
-    @Test
-    public void sutCorrectlyRepeatsTestRunForSpecifiedNumberOfTimes() {
-        Result result = JUnitCore.runClasses(OneRepeatTestMethodCase.class);
-        assertEquals(10, result.getRunCount());
     }
 
     @RunWith(RepeatRunner.class)
@@ -47,47 +40,6 @@ public class RepeatRunnerTest {
         }
     }
 
-    @Test
-    public void sutCorrectlyRepeatsSeveralRepeatTestMethods() {
-        List<String> executedTestNames = new ArrayList<>();
-        JUnitCore junitCore = new JUnitCore();
-        junitCore.addListener(new RunListener() {
-            @Override
-            public void testFinished(Description description) {
-                executedTestNames.add(description.getMethodName());
-            }
-        });
-
-        junitCore.run(SeveralRepeatTestMethodsCase.class);
-
-        assertEquals(15, executedTestNames.size());
-        assertEquals(3, getRepeat(executedTestNames, getTargetTestName(3)));
-        assertEquals(5, getRepeat(executedTestNames, getTargetTestName(5)));
-        assertEquals(7, getRepeat(executedTestNames, getTargetTestName(7)));
-    }
-
-    @Test
-    public void sutRunsOnlySelectedRepeatMethods() {
-        List<String> executedTestNames = new ArrayList<>();
-        JUnitCore junitCore = new JUnitCore();
-        junitCore.addListener(new RunListener() {
-            @Override
-            public void testFinished(Description description) {
-                executedTestNames.add(description.getMethodName());
-            }
-        });
-        String targetTestName = getTargetTestName(3);
-
-        junitCore.run(Request.method(SeveralRepeatTestMethodsCase.class, targetTestName));
-
-        assertEquals(3, executedTestNames.size());
-        assertEquals(3, getRepeat(executedTestNames, targetTestName));
-    }
-
-    private String getTargetTestName(int repeat) {
-        return String.format("testMyCode%sTimes", repeat);
-    }
-
     @RunWith(RepeatRunner.class)
     public static class RepeatTestMethodWithNormalCase {
         @Test
@@ -101,7 +53,8 @@ public class RepeatRunnerTest {
     }
 
     @Test
-    public void sutCorrectlyRunsNormalTestMethod() {
+    public void sutSupportsSeveralRepeatTestMethods() {
+        // Fixture setup
         List<String> executedTestNames = new ArrayList<>();
         JUnitCore junitCore = new JUnitCore();
         junitCore.addListener(new RunListener() {
@@ -111,13 +64,76 @@ public class RepeatRunnerTest {
             }
         });
 
-        junitCore.run(RepeatTestMethodWithNormalCase.class);
+        // Exercise system
+        junitCore.run(SeveralRepeatTestMethodsCase.class);
 
-        assertEquals(4, executedTestNames.size());
-        assertEquals(1, getRepeat(executedTestNames, "normalTestMethod"));
+        // Verify outcome
+        assertEquals(15, executedTestNames.size());
+        assertNumberOfTimesToRun(executedTestNames, 3);
+        assertNumberOfTimesToRun(executedTestNames, 5);
+        assertNumberOfTimesToRun(executedTestNames, 7);
     }
 
-    private long getRepeat(List<String> executedTestNames, String targetTestName) {
+    @Test
+    public void sutCorrectlyRepeatsTestRunForSpecifiedNumberOfTimes() {
+        Result result = JUnitCore.runClasses(OneRepeatTestMethodCase.class);
+        assertEquals(10, result.getRunCount());
+    }
+
+    @Test
+    public void sutCorrectlyRunsNormalTestMethod() {
+        // Fixture setup
+        List<String> executedTestNames = new ArrayList<>();
+        JUnitCore junitCore = new JUnitCore();
+        junitCore.addListener(new RunListener() {
+            @Override
+            public void testFinished(Description description) {
+                executedTestNames.add(description.getMethodName());
+            }
+        });
+
+        // Exercise system
+        junitCore.run(RepeatTestMethodWithNormalCase.class);
+
+        // Verify outcome
+        assertEquals(4, executedTestNames.size());
+        assertEquals(1, getNumberOfTimes(executedTestNames, "normalTestMethod"));
+    }
+
+    @Test
+    public void sutRunsOnlySelectedRepeatMethods() {
+        // Fixture setup
+        List<String> executedTestNames = new ArrayList<>();
+        JUnitCore junitCore = new JUnitCore();
+        junitCore.addListener(new RunListener() {
+            @Override
+            public void testFinished(Description description) {
+                executedTestNames.add(description.getMethodName());
+            }
+        });
+        String targetTestName = getTargetTestName(3);
+
+        // Exercise system
+        junitCore.run(Request.method(SeveralRepeatTestMethodsCase.class, targetTestName));
+
+        // Verify outcome
+        assertEquals(3, executedTestNames.size());
+        assertNumberOfTimesToRun(executedTestNames, 3);
+    }
+
+    private void assertNumberOfTimesToRun(
+            List<String> executedTestNames, int expectedNumberOfTimes) {
+        long actual = getNumberOfTimes(
+                executedTestNames, getTargetTestName(expectedNumberOfTimes));
+
+        assertEquals(expectedNumberOfTimes, actual);
+    }
+
+    private String getTargetTestName(int repeat) {
+        return String.format("testMyCode%sTimes", repeat);
+    }
+
+    private long getNumberOfTimes(List<String> executedTestNames, String targetTestName) {
         return executedTestNames
                 .stream()
                 .filter(x -> x.equals(targetTestName))
