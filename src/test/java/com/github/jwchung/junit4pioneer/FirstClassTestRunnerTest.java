@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
+import org.junit.runner.Request;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -95,5 +96,13 @@ public class FirstClassTestRunnerTest {
         Result result = JUnitCore.runClasses(StreamTestCases.class);
         assertEquals(2, result.getRunCount());
         assertEquals(0, result.getFailureCount());
+    }
+
+    @Test
+    public void sutRunsOnlySelectedFirstClassTestCases() {
+        JUnitCore junitCore = new JUnitCore();
+        Result result = junitCore.run(
+                Request.method(IterableTestCases.class, "createIterableTestCases"));
+        assertEquals(3, result.getRunCount());
     }
 }
