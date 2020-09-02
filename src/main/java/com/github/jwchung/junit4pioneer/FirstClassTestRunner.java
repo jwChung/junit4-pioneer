@@ -1,6 +1,7 @@
 package com.github.jwchung.junit4pioneer;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,7 +44,7 @@ public class FirstClassTestRunner extends Runner implements Filterable {
 
     private static class InnerFirstClassTestRunner
             extends ParentRunner<FirstClassTestCaseMethod> {
-        private final ConcurrentHashMap<FrameworkMethod, Description> methodDescriptions =
+        private final ConcurrentHashMap<FirstClassTestCaseMethod, Description> methodDescriptions =
                 new ConcurrentHashMap<>();
 
         public InnerFirstClassTestRunner(Class<?> declaringClass) throws InitializationError {
@@ -71,15 +72,13 @@ public class FirstClassTestRunner extends Runner implements Filterable {
 
         @Override
         protected Description describeChild(FirstClassTestCaseMethod child) {
-            FrameworkMethod declaringMethod = child.getDeclaringMethod();
-            Description description = methodDescriptions.get(declaringMethod);
+            Description description = methodDescriptions.get(child);
 
             if (description == null) {
-                description = Description.createTestDescription(getTestClass().getJavaClass(),
-                        testName(declaringMethod), declaringMethod.getAnnotations());
-                methodDescriptions.putIfAbsent(declaringMethod, description);
-            }
+                description = child.createTestDescription();
 
+                methodDescriptions.putIfAbsent(child, description);
+            }
             return description;
         }
 
@@ -87,6 +86,11 @@ public class FirstClassTestRunner extends Runner implements Filterable {
         protected void runChild(FirstClassTestCaseMethod child, RunNotifier notifier) {
             Description description = describeChild(child);
             runLeaf(testCaseMethodBlock(child), description, notifier);
+        }
+
+        @Override
+        public void filter(Filter filter) throws NoTestsRemainException {
+            super.filter(new NoPhraseFilter(filter));
         }
 
         private TestClass getDeclaringClass() {
@@ -97,13 +101,9 @@ public class FirstClassTestRunner extends Runner implements Filterable {
             return new Statement() {
                 @Override
                 public void evaluate() {
-                    testCaseMethod.invoke();
+                    testCaseMethod.run();
                 }
             };
-        }
-
-        protected String testName(FrameworkMethod method) {
-            return method.getName();
         }
 
         private static class FirstClassTestCaseMethodComposer {
@@ -224,12 +224,44 @@ public class FirstClassTestRunner extends Runner implements Filterable {
             this.testCase = testCase;
         }
 
-        public FrameworkMethod getDeclaringMethod() {
-            return declaringMethod;
+        public void run() {
+            testCase.run();
         }
 
-        public void invoke() {
-            testCase.invoke();
+        public Description createTestDescription() {
+            if (testCase instanceof ParametersDisplayable) {
+                String displayName = String.format(
+                        "%s[%s]",
+                        declaringMethod.getName(),
+                        ((ParametersDisplayable) testCase).getPhrase());
+
+                return Description.createTestDescription(
+                        declaringMethod.getDeclaringClass(),
+                        displayName);
+            } else {
+                return Description.createTestDescription(
+                        declaringMethod.getDeclaringClass(),
+                        declaringMethod.getName());
+            }
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            FirstClassTestCaseMethod that = (FirstClassTestCaseMethod) o;
+            return testCase.equals(that.testCase);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(testCase);
         }
     }
 }

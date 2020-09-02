@@ -1,18 +1,23 @@
 package com.github.jwchung.junit4pioneer;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Test;
+import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
+import org.junit.runner.notification.RunListener;
 import org.junit.runners.BlockJUnit4ClassRunner;
 
 @RunWith(BlockJUnit4ClassRunner.class)
@@ -81,7 +86,7 @@ public class FirstClassTestRunnerTest {
 
             return FirstClassTestCases
                     .with(testData)
-                    .build(x -> assertTrue(x <= 3));
+                    .run(x -> assertTrue(x <= 3));
         }
 
         @Test
@@ -90,7 +95,7 @@ public class FirstClassTestRunnerTest {
 
             return FirstClassTestCases
                     .with(testData)
-                    .build(x -> assertTrue(x <= 2));
+                    .run(x -> assertTrue(x <= 2));
         }
 
         @Test
@@ -101,7 +106,52 @@ public class FirstClassTestRunnerTest {
 
             return FirstClassTestCases
                     .with(testData)
-                    .build(x -> assertTrue(x <= 5));
+                    .run(x -> assertTrue(x <= 5));
+        }
+    }
+
+    @RunWith(FirstClassTestRunner.class)
+    public static class FirstClassTestCasesFormattingTestClass {
+        @Test
+        public Stream<FirstClassTestCase> createTestCasesWithSimpleDisplayer() {
+            Iterable<Integer> testData = Arrays.asList(1, 2, 3);
+
+            return FirstClassTestCases
+                    .with(testData)
+                    .displayParameters(x -> String.format("value=%s", x))
+                    .run(x -> assertTrue(x <= 3));
+        }
+
+        @Test
+        public Stream<FirstClassTestCase> createTestCasesWithComplexDisplayer() {
+            return FirstClassTestCases
+                    .with(Arrays.asList(new Object[]{
+                            13,
+                            "a",
+                            new Object() {
+                                @Override
+                                public String toString() {
+                                    return "hello";
+                                }
+                            }
+                    }, new Object[]{
+                            23, "b"
+                    }))
+                    .displayParameters(x -> Arrays.stream(x)
+                            .map(Object::toString)
+                            .reduce((str1, str2) -> str1 + ", " + str2)
+                            .orElse(""))
+                    .run(x -> {
+                    });
+        }
+
+        @Test
+        public Stream<FirstClassTestCase> createTestCasesWithoutDisplayer() {
+            return FirstClassTestCases
+                    .with(new Integer[]{
+                            1, 2, 3
+                    })
+                    .run(x -> assertTrue(x <= 3));
         }
     }
 
@@ -143,5 +193,78 @@ public class FirstClassTestRunnerTest {
         Result result = JUnitCore.runClasses(FirstClassTestCasesTestClass.class);
         assertEquals(10, result.getRunCount());
         assertEquals(0, result.getFailureCount());
+    }
+
+    @Test
+    public void sutCorrectlyRepresentsSimpleParametersPhrase() {
+        // Fixture setup
+        List<String> executedTestNames = new ArrayList<>();
+        JUnitCore junitCore = new JUnitCore();
+        junitCore.addListener(new RunListener() {
+            @Override
+            public void testFinished(Description description) {
+                executedTestNames.add(description.getMethodName());
+            }
+        });
+        String targetTestName = "createTestCasesWithSimpleDisplayer";
+        List<String> expected = Arrays.asList(
+                "createTestCasesWithSimpleDisplayer[value=1]",
+                "createTestCasesWithSimpleDisplayer[value=2]",
+                "createTestCasesWithSimpleDisplayer[value=3]");
+
+        // Exercise system
+        junitCore.run(Request.method(FirstClassTestCasesFormattingTestClass.class, targetTestName));
+
+        // Verify outcome
+        assertThat(executedTestNames, is(expected));
+    }
+
+    @Test
+    public void sutCorrectlyRepresentsComplexParametersPhrase() {
+        // Fixture setup
+        List<String> executedTestNames = new ArrayList<>();
+        JUnitCore junitCore = new JUnitCore();
+        junitCore.addListener(new RunListener() {
+            @Override
+            public void testFinished(Description description) {
+                executedTestNames.add(description.getMethodName());
+            }
+        });
+        String targetTestName = "createTestCasesWithComplexDisplayer";
+        List<String> expected = Arrays.asList(
+                "createTestCasesWithComplexDisplayer[13, a, hello]",
+                "createTestCasesWithComplexDisplayer[23, b]");
+
+        // Exercise system
+        junitCore.run(Request.method(
+                FirstClassTestCasesFormattingTestClass.class, targetTestName));
+
+        // Verify outcome
+        assertThat(executedTestNames, is(expected));
+    }
+
+    @Test
+    public void sutDoesNotRepresentParametersPhraseWithoutDisplayer() {
+        // Fixture setup
+        List<String> executedTestNames = new ArrayList<>();
+        JUnitCore junitCore = new JUnitCore();
+        junitCore.addListener(new RunListener() {
+            @Override
+            public void testFinished(Description description) {
+                executedTestNames.add(description.getMethodName());
+            }
+        });
+        String targetTestName = "createTestCasesWithoutDisplayer";
+        List<String> expected = Arrays.asList(
+                "createTestCasesWithoutDisplayer",
+                "createTestCasesWithoutDisplayer",
+                "createTestCasesWithoutDisplayer");
+
+        // Exercise system
+        junitCore.run(Request.method(
+                FirstClassTestCasesFormattingTestClass.class, targetTestName));
+
+        // Verify outcome
+        assertThat(executedTestNames, is(expected));
     }
 }
