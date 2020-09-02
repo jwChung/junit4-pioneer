@@ -2,5 +2,6 @@ package com.github.jwchung.junit4pioneer;
 
 @FunctionalInterface
 public interface FirstClassTestCase {
-    void invoke();
+    void run();
 }
+

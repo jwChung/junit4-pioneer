@@ -142,7 +142,7 @@ public class RepeatRunnerTest {
     }
 
     @Test
-    public void sutCorrectlyRepresentsRepeatNumberPhraseInTestName() {
+    public void sutCorrectlyRepresentsRepeatNumberPhrase() {
         // Fixture setup
         List<String> executedTestNames = new ArrayList<>();
         JUnitCore junitCore = new JUnitCore();

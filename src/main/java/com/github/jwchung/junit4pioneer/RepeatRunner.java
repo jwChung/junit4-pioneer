@@ -67,7 +67,7 @@ public class RepeatRunner extends Runner implements Filterable {
 
         @Override
         public void filter(Filter filter) throws NoTestsRemainException {
-            super.filter(new RepeatFilter(filter));
+            super.filter(new NoPhraseFilter(filter));
         }
 
         @Override
@@ -115,41 +115,6 @@ public class RepeatRunner extends Runner implements Filterable {
             numberFormat.setGroupingUsed(false);
 
             return numberFormat;
-        }
-    }
-
-    private static class RepeatFilter extends Filter {
-        private final Filter innerFilter;
-
-        public RepeatFilter(Filter innerFilter) {
-            this.innerFilter = innerFilter;
-        }
-
-        @Override
-        public boolean shouldRun(Description description) {
-            return innerFilter.shouldRun(
-                    getDescriptionWithoutRepeatNumberPhrase(description));
-        }
-
-        @Override
-        public String describe() {
-            return innerFilter.describe();
-        }
-
-        private Description getDescriptionWithoutRepeatNumberPhrase(Description description) {
-            return Description.createTestDescription(
-                    description.getTestClass(),
-                    getMethodNameWithoutRepeatNumberPhrase(description));
-        }
-
-        private String getMethodNameWithoutRepeatNumberPhrase(Description description) {
-            int phraseStartIndex = description.getMethodName().indexOf('[');
-
-            if (phraseStartIndex < 0) {
-                return description.getMethodName();
-            }
-
-            return description.getMethodName().substring(0, phraseStartIndex);
         }
     }
 
