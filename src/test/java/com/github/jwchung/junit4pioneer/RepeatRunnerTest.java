@@ -88,9 +88,9 @@ public class RepeatRunnerTest {
 
         // Verify outcome
         assertEquals(15, executedTestNames.size());
-        assertNumberOfTimesToRun(executedTestNames, 3);
-        assertNumberOfTimesToRun(executedTestNames, 5);
-        assertNumberOfTimesToRun(executedTestNames, 7);
+        assertNumberOfRepeatTimes(executedTestNames, 3);
+        assertNumberOfRepeatTimes(executedTestNames, 5);
+        assertNumberOfRepeatTimes(executedTestNames, 7);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class RepeatRunnerTest {
 
         // Verify outcome
         assertEquals(3, executedTestNames.size());
-        assertNumberOfTimesToRun(executedTestNames, 3);
+        assertNumberOfRepeatTimes(executedTestNames, 3);
     }
 
     @Test
@@ -214,19 +214,19 @@ public class RepeatRunnerTest {
         assertThat(executedTestNames, hasItems(expected));
     }
 
-    private void assertNumberOfTimesToRun(
-            List<String> executedTestNames, int expectedNumberOfTimes) {
-        long actual = getNumberOfTimes(
-                executedTestNames, getTargetTestName(expectedNumberOfTimes));
+    private void assertNumberOfRepeatTimes(
+            List<String> executedTestNames, int expectedNumberOfRepeatTimes) {
+        long actual = getNumberOfRepeatTimes(
+                executedTestNames, getTargetTestName(expectedNumberOfRepeatTimes));
 
-        assertEquals(expectedNumberOfTimes, actual);
+        assertEquals(expectedNumberOfRepeatTimes, actual);
     }
 
     private String getTargetTestName(int repeat) {
         return String.format("testMyCode%sTimes", repeat);
     }
 
-    private long getNumberOfTimes(List<String> executedTestNames, String targetTestName) {
+    private long getNumberOfRepeatTimes(List<String> executedTestNames, String targetTestName) {
         return executedTestNames
                 .stream()
                 .filter(x -> x.startsWith(targetTestName))
