@@ -18,7 +18,7 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 @RunWith(BlockJUnit4ClassRunner.class)
 public class FirstClassTestRunnerTest {
     @RunWith(FirstClassTestRunner.class)
-    public static class IterableTestCases {
+    public static class IterableTestClass {
         @Test
         public Iterable<FirstClassTestCase> createIterableTestCases() {
             int[] testData = {
@@ -41,7 +41,7 @@ public class FirstClassTestRunnerTest {
     }
 
     @RunWith(FirstClassTestRunner.class)
-    public static class NormalTestCases {
+    public static class NormalTestClass {
         private static Boolean isExecutedRecorder = false;
 
         @Test
@@ -61,7 +61,7 @@ public class FirstClassTestRunnerTest {
     }
 
     @RunWith(FirstClassTestRunner.class)
-    public static class StreamTestCases {
+    public static class StreamTestClass {
         @Test
         public Stream<FirstClassTestCase> createTestCases() {
             int[] testData = {
@@ -73,36 +73,75 @@ public class FirstClassTestRunnerTest {
         }
     }
 
+    @RunWith(FirstClassTestRunner.class)
+    public static class FirstClassTestCasesTestClass {
+        @Test
+        public Stream<FirstClassTestCase> createTestCasesWithIterable() {
+            Iterable<Integer> testData = Arrays.asList(1, 2, 3);
+
+            return FirstClassTestCases
+                    .with(testData)
+                    .build(x -> assertTrue(x <= 3));
+        }
+
+        @Test
+        public Stream<FirstClassTestCase> createTestCasesWithStream() {
+            Stream<Integer> testData = Stream.of(1, 2);
+
+            return FirstClassTestCases
+                    .with(testData)
+                    .build(x -> assertTrue(x <= 2));
+        }
+
+        @Test
+        public Stream<FirstClassTestCase> createTestCasesWithArray() {
+            Integer[] testData = {
+                    1, 2, 3, 4, 5
+            };
+
+            return FirstClassTestCases
+                    .with(testData)
+                    .build(x -> assertTrue(x <= 5));
+        }
+    }
+
     @Test
-    public void sutCorrectlyRunsIterableFirstClassTestCases() {
-        Result result = JUnitCore.runClasses(IterableTestCases.class);
+    public void sutCorrectlyRunsIterableTestCases() {
+        Result result = JUnitCore.runClasses(IterableTestClass.class);
         assertEquals(5, result.getRunCount());
         assertEquals(0, result.getFailureCount());
     }
 
     @Test
     public void sutCorrectlyRunsVoidTestCases() {
-        NormalTestCases.isExecutedRecorder = false;
+        NormalTestClass.isExecutedRecorder = false;
 
-        Result result = JUnitCore.runClasses(NormalTestCases.class);
+        Result result = JUnitCore.runClasses(NormalTestClass.class);
 
         assertEquals(3, result.getRunCount());
         assertEquals(0, result.getFailureCount());
-        assertTrue(NormalTestCases.isExecutedRecorder);
+        assertTrue(NormalTestClass.isExecutedRecorder);
     }
 
     @Test
-    public void sutCorrectlyRunsStreamFirstClassTestCases() {
-        Result result = JUnitCore.runClasses(StreamTestCases.class);
+    public void sutCorrectlyRunsStreamTestCases() {
+        Result result = JUnitCore.runClasses(StreamTestClass.class);
         assertEquals(2, result.getRunCount());
         assertEquals(0, result.getFailureCount());
     }
 
     @Test
-    public void sutRunsOnlySelectedFirstClassTestCases() {
+    public void sutRunsOnlySelectedTestCases() {
         JUnitCore junitCore = new JUnitCore();
         Result result = junitCore.run(
-                Request.method(IterableTestCases.class, "createIterableTestCases"));
+                Request.method(IterableTestClass.class, "createIterableTestCases"));
         assertEquals(3, result.getRunCount());
+    }
+
+    @Test
+    public void sutCorrectlyRunsTestCasesInitializedByFirstClassTestCases() {
+        Result result = JUnitCore.runClasses(FirstClassTestCasesTestClass.class);
+        assertEquals(10, result.getRunCount());
+        assertEquals(0, result.getFailureCount());
     }
 }
