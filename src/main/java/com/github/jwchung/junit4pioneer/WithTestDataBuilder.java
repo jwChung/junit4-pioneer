@@ -2,19 +2,20 @@ package com.github.jwchung.junit4pioneer;
 
 import java.util.stream.Stream;
 
-public class WithTestDataBuilder<T> {
-    private final Stream<? extends T> testData;
+public class WithTestDataBuilder<ParametersT> {
+    private final Stream<? extends ParametersT> testData;
 
-    WithTestDataBuilder(Stream<? extends T> testData) {
+    WithTestDataBuilder(Stream<? extends ParametersT> testData) {
         this.testData = testData;
     }
 
-    public WithParametersDisplayerBuilder<T> displayParameters(
-            ParametersDisplayer<? super T> displayer) {
+    public WithParametersDisplayerBuilder<ParametersT> displayParameters(
+            ParametersDisplayer<? super ParametersT> displayer) {
         return new WithParametersDisplayerBuilder<>(testData, displayer);
     }
 
-    public Stream<FirstClassTestCase> run(FirstClassTestCaseWithParameters<? super T> testCase) {
+    public Stream<FirstClassTestCase> run(
+            FirstClassTestCaseWithParameters<? super ParametersT> testCase) {
         return displayParameters(ParametersDisplayer.getEmpty()).run(testCase);
     }
 }

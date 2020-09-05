@@ -2,12 +2,13 @@ package com.github.jwchung.junit4pioneer;
 
 import java.util.stream.Stream;
 
-public class WithParametersDisplayerBuilder<T> {
-    private final Stream<? extends T> testData;
-    private final ParametersDisplayer<? super T> displayer;
+public class WithParametersDisplayerBuilder<ParametersT> {
+    private final Stream<? extends ParametersT> testData;
+    private final ParametersDisplayer<? super ParametersT> displayer;
 
     WithParametersDisplayerBuilder(
-            Stream<? extends T> testData, ParametersDisplayer<? super T> displayer) {
+            Stream<? extends ParametersT> testData,
+            ParametersDisplayer<? super ParametersT> displayer) {
         this.testData = testData;
         this.displayer = displayer;
     }
@@ -20,19 +21,19 @@ public class WithParametersDisplayerBuilder<T> {
      * @return The first-class test cases
      */
     public Stream<FirstClassTestCase> run(
-            FirstClassTestCaseWithParameters<? super T> testCase) {
+            FirstClassTestCaseWithParameters<? super ParametersT> testCase) {
         return displayer == ParametersDisplayer.getEmpty()
                 ? runWithoutPhrase(testCase)
                 : runWithPhrase(testCase);
     }
 
     private Stream<FirstClassTestCase> runWithoutPhrase(
-            FirstClassTestCaseWithParameters<? super T> testCase) {
+            FirstClassTestCaseWithParameters<? super ParametersT> testCase) {
         return testData.map(parameters -> () -> testCase.run(parameters));
     }
 
     private Stream<FirstClassTestCase> runWithPhrase(
-            FirstClassTestCaseWithParameters<? super T> testCase) {
+            FirstClassTestCaseWithParameters<? super ParametersT> testCase) {
         return testData.map(parameters -> {
             String phrase = displayer.display(parameters);
             return new ParametersDisplayableTestCase(phrase) {
