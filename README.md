@@ -1,0 +1,1 @@
+![Continuous Integration](https://github.com/jwChung/junit4-pioneer/workflows/Continuous%20Integration/badge.svg)
