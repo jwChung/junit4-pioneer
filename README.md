@@ -1,1 +1,2 @@
-![Continuous Integration](https://github.com/jwChung/junit4-pioneer/workflows/Continuous%20Integration/badge.svg)
+[![Continuous Integration](https://github.com/jwChung/junit4-pioneer/workflows/Continuous%20Integration/badge.svg)](https://github.com/jwChung/junit4-pioneer/actions?query=workflow%3A%22Continuous+Integration%22)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jwchung/junit4-pioneer/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.jwchung/junit4-pioneer)
