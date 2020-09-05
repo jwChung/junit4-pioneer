@@ -16,16 +16,19 @@
  -->
 
 <!--
-    원본은 아래 checkstyle-7.7의 google_checks.xml 입니다
+    The original is the 'google_checks.xml' file in checkstyle-7.7 below.
     https://raw.githubusercontent.com/checkstyle/checkstyle/checkstyle-7.7/src/main/resources/google_checks.xml
 
-    변경이력
+    history of changes
 
     - basicOffset 2 -> 4
       caseIndent 2 -> 4
       throwsIndent 4 -> 8
       lineWrappingIndentation 4 -> 8
       arrayInitIndent 2 -> 4
+
+    - allowMultipleEmptyLines true -> false
+      allowMultipleEmptyLinesInsideClassMembers true -> false
 -->
 
 <module name = "Checker">
@@ -95,6 +98,8 @@
         <module name="ModifierOrder"/>
         <module name="EmptyLineSeparator">
             <property name="allowNoEmptyLineBetweenFields" value="true"/>
+            <property name="allowMultipleEmptyLines	" value="false"/>
+            <property name="allowMultipleEmptyLinesInsideClassMembers" value="false"/>
         </module>
         <module name="SeparatorWrap">
             <property name="id" value="SeparatorWrapDot"/>
