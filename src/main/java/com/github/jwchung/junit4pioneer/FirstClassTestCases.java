@@ -5,15 +5,18 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class FirstClassTestCases {
-    public static <U> WithTestDataBuilder<U> with(Iterable<? extends U> testData) {
+    public static <ParametersT> WithTestDataBuilder<ParametersT> with(
+            Iterable<? extends ParametersT> testData) {
         return with(StreamSupport.stream(testData.spliterator(), false));
     }
 
-    public static <U> WithTestDataBuilder<U> with(U[] testData) {
+    public static <ParametersT> WithTestDataBuilder<ParametersT> with(
+            ParametersT[] testData) {
         return with(Arrays.stream(testData));
     }
 
-    public static <U> WithTestDataBuilder<U> with(Stream<? extends U> testData) {
+    public static <ParametersT> WithTestDataBuilder<ParametersT> with(
+            Stream<? extends ParametersT> testData) {
         return new WithTestDataBuilder<>(testData);
     }
 }

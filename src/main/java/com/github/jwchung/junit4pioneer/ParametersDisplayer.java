@@ -1,8 +1,8 @@
 package com.github.jwchung.junit4pioneer;
 
 @FunctionalInterface
-public interface ParametersDisplayer<T> {
-    String display(T parameters);
+public interface ParametersDisplayer<ParametersT> {
+    String display(ParametersT parameters);
 
     /**
      * Represents the empty displayer.
