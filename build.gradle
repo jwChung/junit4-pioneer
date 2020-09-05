@@ -11,13 +11,13 @@ if (project.hasProperty("semver")) {
     version semver
 }
 
-
 repositories {
     mavenCentral()
 }
 
 checkstyle {
     toolVersion = '8.1'
+
 }
 
 dependencies {
@@ -99,3 +99,5 @@ nexusStaging {
     stagingProfileId = "845535153553b"
 }
 
+classes.finalizedBy checkstyleMain
+testClasses.finalizedBy checkstyleTest
